@@ -2,6 +2,7 @@ package wxsg
 
 import (
 	"bytes"
+	"errors"
 	"fmt"
 	"regexp"
 	"strings"
@@ -109,12 +110,12 @@ func (a *Article) String() string {
 }
 
 func (c Client) GetArticleByUrl(url string) (article *Article, err error) {
-	if strings.HasPrefix(url, "https://weixin.sogou.com/link") {
+	if strings.Contains(url, "weixin.sogou.com/link") {
 		url, err = GetArticleRealUrl(url)
 		if err != nil {
 			return
 		}
-	} else if !strings.HasPrefix(url, "https://mp.weixin.qq.com/s") {
+	} else if !strings.Contains(url, "mp.weixin.qq.com/s") {
 		err = fmt.Errorf("invalid url: %s", url)
 		return
 	}
@@ -153,7 +154,7 @@ func (c Client) GetArticleByTitle(title, accName string) (*Article, error) {
 		}
 		return article, nil
 	}
-	return nil, nil
+	return nil, errors.New("not found")
 }
 
 func (c Client) GetLatestArticleByAccount(accName, weixinID string) (*Article, error) {
@@ -175,5 +176,5 @@ func (c Client) GetLatestArticleByAccount(accName, weixinID string) (*Article, e
 		}
 		return article, nil
 	}
-	return nil, nil
+	return nil, errors.New("not found")
 }
