@@ -1,0 +1,5 @@
+.vscode
+.DS_Store
+
+html/
+cmd/wxsg-go/wxsg-go
