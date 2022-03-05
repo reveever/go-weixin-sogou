@@ -50,5 +50,5 @@ func main() {
 	fmt.Println(article)
 }
 ```
-
-[Doc & Examples](https://pkg.go.dev/github.com/reveever/go-weixin-sogou)
+## Doc & More examples
+[godoc](https://pkg.go.dev/github.com/reveever/go-weixin-sogou)
