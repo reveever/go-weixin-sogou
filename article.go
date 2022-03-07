@@ -5,14 +5,16 @@ import (
 	"errors"
 	"fmt"
 	"regexp"
+	"strconv"
 	"strings"
+	"time"
 
 	"github.com/PuerkitoBio/goquery"
 	"golang.org/x/net/html"
 )
 
 var (
-	pubTimeReg = regexp.MustCompile(`var t="\d+",n="\d+",o="(20\d\d-\d\d-\d\d \d\d:\d\d)";`)
+	pubTimeReg = regexp.MustCompile(`var t="\d+",n="(\d+)",o="20\d\d-\d\d-\d\d \d\d:\d\d";`)
 )
 
 // 公众号文章数据
@@ -20,7 +22,7 @@ type Article struct {
 	Title   string
 	Author  string
 	AccName string
-	PubTime string
+	PubTime time.Time
 	Albums  []AlbumInfo
 	Node    *html.Node
 }
@@ -47,7 +49,8 @@ func NewArticle(node *html.Node) *Article {
 	if strings.Contains(text, "publish_time") {
 		ret := pubTimeReg.FindStringSubmatch(text)
 		if len(ret) == 2 {
-			article.PubTime = ret[1]
+			s, _ := strconv.ParseInt(ret[1], 10, 64)
+			article.PubTime = time.Unix(s, 0)
 		}
 	}
 	tagsSele := contentSele.Find("#js_tags > div.article-tags")
@@ -104,7 +107,7 @@ func (a *Article) String() string {
 	b.WriteString(a.Title + "\n")
 	b.WriteString(a.Author + " ")
 	b.WriteString(a.AccName + " ")
-	b.WriteString(a.PubTime + "\n")
+	b.WriteString(a.PubTime.String() + "\n")
 	b.WriteString(a.Content())
 	return b.String()
 }
