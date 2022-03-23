@@ -14,7 +14,7 @@ import (
 )
 
 var (
-	pubTimeReg = regexp.MustCompile(`var t="\d+",n="(\d+)",o="20\d\d-\d\d-\d\d \d\d:\d\d";`)
+	pubTimeReg = regexp.MustCompile(`"(1[6-9]\d{8})"`)
 )
 
 // 公众号文章数据
@@ -45,14 +45,17 @@ func NewArticle(node *html.Node) *Article {
 	article.Author = strings.TrimSpace(contentSele.Find("#meta_content > span.rich_media_meta.rich_media_meta_text").Text())
 	article.AccName = strings.TrimSpace(contentSele.Find("#js_name").Text())
 
-	text := doc.Find("#activity-detail > script:nth-child(24)").Text()
-	if strings.Contains(text, "publish_time") {
-		ret := pubTimeReg.FindStringSubmatch(text)
-		if len(ret) == 2 {
-			s, _ := strconv.ParseInt(ret[1], 10, 64)
-			article.PubTime = time.Unix(s, 0)
+	doc.Find("#activity-detail > script").Each(func(i int, s *goquery.Selection) {
+		text := s.Text()
+		if strings.Contains(text, "publish_time") {
+			ret := pubTimeReg.FindStringSubmatch(text)
+			if len(ret) == 2 {
+				s, _ := strconv.ParseInt(ret[1], 10, 64)
+				article.PubTime = time.Unix(s, 0)
+			}
 		}
-	}
+	})
+
 	tagsSele := contentSele.Find("#js_tags > div.article-tags")
 	tagsSele.Children().Each(func(i int, s *goquery.Selection) {
 		c := s.Children()
