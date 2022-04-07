@@ -19,6 +19,7 @@ var (
 
 // 公众号文章数据
 type Article struct {
+	URL     string
 	Title   string
 	Author  string
 	AccName string
@@ -35,8 +36,9 @@ type AlbumInfo struct {
 	Url   string
 }
 
-func NewArticle(node *html.Node) *Article {
+func NewArticle(url string, node *html.Node) *Article {
 	article := &Article{
+		URL:  url,
 		Node: node,
 	}
 	doc := goquery.NewDocumentFromNode(node)
@@ -107,6 +109,7 @@ func (a *Article) Content() string {
 
 func (a *Article) String() string {
 	var b bytes.Buffer
+	b.WriteString(a.URL + "\n")
 	b.WriteString(a.Title + "\n")
 	b.WriteString(a.Author + " ")
 	b.WriteString(a.AccName + " ")
@@ -137,7 +140,7 @@ func (c Client) GetArticleByUrl(url string) (article *Article, err error) {
 		return
 	}
 
-	article = NewArticle(node)
+	article = NewArticle(url, node)
 	return
 }
 
