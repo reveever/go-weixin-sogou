@@ -38,7 +38,7 @@ func NewAlbum(node *html.Node) *Album {
 	album.Count = contentSele.Find("div.album__head-content.no-desc > div > div.album__desc.album__head_fold.js_album_desc.no-desc > div.album__desc-content.js_album_desc_content > span").Text()
 	listSele := contentSele.Find("div.album__content.js_album_bd > ul")
 	listSele.Children().Each(func(i int, s *goquery.Selection) {
-		titleSele := s.Find("div.album__item-content > div.album__item-title.ellipsis_relate_title.mask_ellipsis_wrp.mask_ellipsis_auto_height.relate_article_default > div.mask_ellipsis_text").Children()
+		titleSele := s.Find("div.album__item-content > div.album__item-title.mask_ellipsis_wrp.mask_ellipsis_auto_height.album_article_default > div.mask_ellipsis_text").Children()
 		index, _ := strconv.Atoi(strings.TrimSuffix(titleSele.Eq(0).Text(), ". "))
 		info := ArticleInfo2{
 			Index: index,
