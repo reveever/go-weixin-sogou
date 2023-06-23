@@ -14,7 +14,7 @@ import (
 )
 
 var (
-	pubTimeReg = regexp.MustCompile(`"(1[6-9]\d{8})"`)
+	pubTimeReg = regexp.MustCompile(`var oriCreateTime = '(\d+)'`)
 )
 
 // 公众号文章数据
@@ -46,10 +46,9 @@ func NewArticle(url string, node *html.Node) *Article {
 	article.Title = strings.TrimSpace(contentSele.Find("#activity-name").Text())
 	article.Author = strings.TrimSpace(contentSele.Find("#meta_content > span.rich_media_meta.rich_media_meta_text").Text())
 	article.AccName = strings.TrimSpace(contentSele.Find("#js_name").Text())
-
 	doc.Find("#activity-detail > script").Each(func(i int, s *goquery.Selection) {
 		text := s.Text()
-		if strings.Contains(text, "publish_time") {
+		if strings.Contains(text, "oriCreateTime") {
 			ret := pubTimeReg.FindStringSubmatch(text)
 			if len(ret) == 2 {
 				s, _ := strconv.ParseInt(ret[1], 10, 64)
