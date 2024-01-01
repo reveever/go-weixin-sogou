@@ -52,6 +52,17 @@ func ExampleGetLatestArticleByAccount() {
 	}
 	fmt.Println(article.String())
 }
+
+func ExampleGetArticleByUrl() {
+	article, err := GetArticleByUrl("https://mp.weixin.qq.com/s/qgr3OR5Xha8MWMMv0mV7_A")
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+	fmt.Println(article.Albums)
+	fmt.Println(article.String())
+}
+
 func ExampleGetAlbumByUrl() {
 	album, err := GetAlbumByID("2036709839434842113", false)
 	if err != nil {

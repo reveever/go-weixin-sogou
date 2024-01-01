@@ -57,15 +57,37 @@ func NewArticle(url string, node *html.Node) *Article {
 		}
 	})
 
-	tagsSele := contentSele.Find("#js_tags > div.article-tags")
-	tagsSele.Children().Each(func(i int, s *goquery.Selection) {
-		c := s.Children()
-		article.Albums = append(article.Albums, AlbumInfo{
-			ID:    strings.TrimSpace(s.AttrOr("data-album_id", "")),
-			Name:  strings.TrimSpace(c.First().Text()),
-			Count: strings.TrimSpace(c.Children().First().Text()),
-			Url:   strings.TrimSpace(s.AttrOr("data-url", "")),
-		})
+	scripts := doc.Find("#activity-detail > script")
+	scripts.EachWithBreak(func(i int, s *goquery.Selection) bool {
+		pattern := regexp.MustCompile(`var\s*publicTagInfo\s*=\s*\[\s*({[\s\S]*?}\s*,)\s*\]\s*;`)
+		match := pattern.FindStringSubmatch(s.Text())
+		if len(match) != 2 {
+			return true
+		}
+		pattern2 := regexp.MustCompile(`{([\s\S]*?)}\s*,\s*`)
+		titleReg := regexp.MustCompile(`title:\s*'(.*)'\s*,`)
+		sizeReg := regexp.MustCompile(`size:\s*'(.*)'\s*\*\s*1\s*,`)
+		linkReg := regexp.MustCompile(`link:\s*'(.*)'\s*,`)
+		albumIDReg := regexp.MustCompile(`albumId:\s*'(.*)'\s*,`)
+		for _, match := range pattern2.FindAllStringSubmatch(match[1], -1) {
+			if len(match) != 2 {
+				continue
+			}
+			title := titleReg.FindStringSubmatch(match[1])
+			count := sizeReg.FindStringSubmatch(match[1])
+			link := linkReg.FindStringSubmatch(match[1])
+			albumIDReg := albumIDReg.FindStringSubmatch(match[1])
+			if len(title) != 2 || len(count) != 2 || len(link) != 2 || len(albumIDReg) != 2 {
+				continue
+			}
+			article.Albums = append(article.Albums, AlbumInfo{
+				ID:    albumIDReg[1],
+				Name:  title[1],
+				Count: count[1],
+				Url:   link[1],
+			})
+		}
+		return false
 	})
 	return article
 }
